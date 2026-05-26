@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#06070f" />
+  <title>ArcadePin — 霓虹彈珠台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game" width="500" height="800" aria-label="ArcadePin playfield"></canvas>
+
+    <!-- Mute toggle (always visible) -->
+    <button id="btn-mute" class="mute-btn" title="靜音切換">🔊</button>
+
+    <!-- On-screen plunger for touch devices -->
+    <button id="launch-btn" class="launch-btn">PULL</button>
+
+    <!-- MENU -->
+    <div id="screen-menu" class="screen">
+      <div class="panel">
+        <h1 class="logo">ARCADE<span>PIN</span></h1>
+        <p class="tagline">霓虹彈珠台 · NEON PINBALL</p>
+        <button id="btn-play" class="btn primary">開始遊戲</button>
+        <button id="btn-board" class="btn">排行榜</button>
+        <div class="help">
+          <p>← / Z&nbsp;&nbsp;左彈片&nbsp;&nbsp;&nbsp;&nbsp;→ / M&nbsp;&nbsp;右彈片</p>
+          <p>SPACE&nbsp;&nbsp;蓄力發射&nbsp;&nbsp;&nbsp;&nbsp;P / ESC&nbsp;&nbsp;暫停</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAME ENTRY -->
+    <div id="screen-name" class="screen hidden">
+      <div class="panel">
+        <h2>輸入街機代號</h2>
+        <p class="tagline">1–8 個字元，匿名綁定本機</p>
+        <input id="name-input" maxlength="8" placeholder="PLAYER" autocomplete="off" spellcheck="false" />
+        <button id="btn-start" class="btn primary">開始</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="screen-gameover" class="screen hidden">
+      <div class="panel">
+        <h2 id="go-rank">GAME OVER</h2>
+        <div class="go-score-wrap">
+          <div class="go-score" id="go-score">0</div>
+          <div class="go-label">SCORE</div>
+        </div>
+        <div class="go-stats">
+          <div><b id="go-combo">0</b><span>最高連擊</span></div>
+          <div><b id="go-time">0:00</b><span>遊玩時間</span></div>
+        </div>
+        <button id="btn-again" class="btn primary">再玩一次</button>
+        <button id="btn-go-board" class="btn">排行榜</button>
+        <button id="btn-go-menu" class="btn ghost">回主選單</button>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="screen-board" class="screen hidden">
+      <div class="panel board-panel">
+        <div class="tabs">
+          <button id="tab-global" class="tab active">全球排行</button>
+          <button id="tab-local" class="tab">本機紀錄</button>
+        </div>
+        <div id="board-list" class="board-list"></div>
+        <button id="btn-board-back" class="btn ghost">返回</button>
+      </div>
+    </div>
+
+    <!-- PAUSE -->
+    <div id="screen-pause" class="screen hidden">
+      <div class="panel">
+        <h2>暫停</h2>
+        <button id="btn-resume" class="btn primary">繼續</button>
+        <button id="btn-pause-menu" class="btn ghost">回主選單</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

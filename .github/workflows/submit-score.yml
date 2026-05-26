@@ -1,0 +1,46 @@
+name: Process Score Submission
+
+# Triggered by the frontend via the GitHub repository_dispatch API (optional, off by
+# default in the client). Validates a submitted score, appends it to the append-only
+# history (auto-archiving when the file grows past its size limit) and refreshes the
+# top-100 leaderboard, then commits the JSON back to the repo.
+
+on:
+  repository_dispatch:
+    types: [arcadepin_score]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leaderboard-write
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Process score
+        env:
+          SCORE_PAYLOAD: ${{ toJson(github.event.client_payload) }}
+        run: node scripts/process_score.mjs
+
+      - name: Commit updated leaderboard
+        run: |
+          git config user.name "arcadepin-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "No leaderboard changes."
+          else
+            git commit -m "chore(leaderboard): record submitted score"
+            git push
+          fi
