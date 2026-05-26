@@ -30,11 +30,12 @@ python3 -m http.server 8080
 
 ## 部署到 GitHub Pages
 
-已內建 `.github/workflows/deploy-pages.yml`。**一次性設定**：
+已內建 `.github/workflows/deploy-pages.yml`，並以 `configure-pages` 的 `enablement: true`
+**自動啟用 GitHub Pages**，推送到 `main` 即自動建置並發佈，網址顯示於 Actions 的 deploy 步驟。
 
-1. 進入 repo 的 **Settings → Pages**
-2. **Build and deployment → Source** 選擇 **GitHub Actions**
-3. 推送到 `main`（或 `claude/epic-gauss-dScNu`）即會自動部署，網址顯示於 Actions 的 deploy 步驟
+部署後網址：`https://ozakboy.github.io/ArcadePin/`
+
+> 若組織層級停用了 Pages，請改至 **Settings → Pages → Source** 手動選 **GitHub Actions**。
 
 ## 雙軌排行榜架構
 
