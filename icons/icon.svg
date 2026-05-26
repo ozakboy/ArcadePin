@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="ArcadePin">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#16245c" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#06070f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ball" cx="36%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#cdeeff"/>
+      <stop offset="100%" stop-color="#3aa6d6"/>
+    </radialGradient>
+    <linearGradient id="trail" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff37c0" stop-opacity="0"/>
+      <stop offset="55%" stop-color="#a35bff"/>
+      <stop offset="100%" stop-color="#8fefff"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="card"><rect x="0" y="0" width="512" height="512" rx="96"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="512" height="512" fill="#06070f"/>
+    <rect width="512" height="512" fill="url(#bgGlow)"/>
+
+    <!-- perspective grid -->
+    <g stroke="#2bd1ff" stroke-opacity="0.18" stroke-width="2" filter="url(#glow)">
+      <line x1="0" y1="392" x2="512" y2="392"/>
+      <line x1="0" y1="430" x2="512" y2="430"/>
+      <line x1="0" y1="476" x2="512" y2="476"/>
+      <line x1="118" y1="512" x2="212" y2="386"/>
+      <line x1="256" y1="512" x2="256" y2="386"/>
+      <line x1="394" y1="512" x2="300" y2="386"/>
+    </g>
+
+    <!-- neon rings -->
+    <g fill="none" filter="url(#glow)">
+      <circle cx="256" cy="246" r="206" stroke="#2bd1ff" stroke-width="8"/>
+      <circle cx="256" cy="246" r="182" stroke="#ffd23f" stroke-width="6"/>
+      <circle cx="256" cy="246" r="158" stroke="#2bd1ff" stroke-width="5" stroke-opacity="0.9"/>
+    </g>
+
+    <!-- motion trail -->
+    <g filter="url(#glow)" stroke-linecap="round" fill="none">
+      <line x1="150" y1="372" x2="318" y2="206" stroke="url(#trail)" stroke-width="34" stroke-opacity="0.55"/>
+      <line x1="158" y1="368" x2="318" y2="208" stroke="#ff37c0" stroke-width="12"/>
+    </g>
+
+    <!-- flipper -->
+    <g filter="url(#glow)" stroke-linecap="round">
+      <line x1="298" y1="394" x2="410" y2="356" stroke="#ff37c0" stroke-width="22"/>
+      <line x1="298" y1="394" x2="410" y2="356" stroke="#ffffff" stroke-width="6" stroke-opacity="0.6"/>
+      <circle cx="410" cy="356" r="7" fill="#fff7d6"/>
+    </g>
+
+    <!-- ball -->
+    <g filter="url(#glow)">
+      <circle cx="330" cy="176" r="56" fill="url(#ball)"/>
+    </g>
+    <circle cx="311" cy="157" r="14" fill="#ffffff" fill-opacity="0.85"/>
+  </g>
+</svg>
