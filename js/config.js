@@ -67,8 +67,8 @@ export const CONFIG = {
     // Write path via a Serverless proxy that holds the GitHub token (see serverless/).
     // The proxy forwards to repository_dispatch; the Action validates + writes the JSON.
     submit: {
-      enabled: false,           // set true after deploying the proxy below
-      proxyUrl: ''              // e.g. https://arcadepin-proxy.<you>.workers.dev
+      enabled: true,           // set true after deploying the proxy below
+      proxyUrl: 'https://arcadepin-proxy.awc0450056.workers.dev/'              // e.g. https://arcadepin-proxy.<you>.workers.dev
     }
   },
 
