@@ -1,6 +1,15 @@
 {
   "schemaVersion": 1,
-  "updatedAt": 0,
+  "updatedAt": 1779813929864,
   "maxEntries": 100,
-  "entries": []
+  "entries": [
+    {
+      "playerId": "87730d89-4bac-425b-80ff-6221256403b6",
+      "playerName": "AA",
+      "score": 31680,
+      "maxCombo": 48,
+      "playTimeSeconds": 22,
+      "timestamp": 1779813914844
+    }
+  ]
 }
