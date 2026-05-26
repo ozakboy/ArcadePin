@@ -30,12 +30,17 @@ python3 -m http.server 8080
 
 ## 部署到 GitHub Pages
 
-已內建 `.github/workflows/deploy-pages.yml`，並以 `configure-pages` 的 `enablement: true`
-**自動啟用 GitHub Pages**，推送到 `main` 即自動建置並發佈，網址顯示於 Actions 的 deploy 步驟。
+本專案是放在 repo 根目錄的純靜態網站（`index.html`、`js/`、`data/`），
+最穩定的方式是 **直接從 `main` 分支發佈**（不需 Actions、不需任何權限設定）：
+
+1. 進入 **Settings → Pages**
+2. **Build and deployment → Source** 選 **Deploy from a branch**
+3. **Branch** 選 `main`、資料夾選 `/ (root)`，按 **Save**
+4. 等約 1 分鐘，網址即上線
 
 部署後網址：`https://ozakboy.github.io/ArcadePin/`
 
-> 若組織層級停用了 Pages，請改至 **Settings → Pages → Source** 手動選 **GitHub Actions**。
+> 已加入 `.nojekyll`，讓 Pages 原樣輸出 `js/` 與 `data/`，不經 Jekyll 處理。
 
 ## 雙軌排行榜架構
 
