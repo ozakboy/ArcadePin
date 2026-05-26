@@ -2,14 +2,5 @@
   "schemaVersion": 1,
   "updatedAt": 0,
   "maxEntries": 100,
-  "entries": [
-    { "playerId": "seed-0001", "playerName": "NEON_ACE", "score": 256000, "maxCombo": 58, "playTimeSeconds": 212, "timestamp": 1746000000000 },
-    { "playerId": "seed-0002", "playerName": "PIXELORD", "score": 198400, "maxCombo": 47, "playTimeSeconds": 188, "timestamp": 1746100000000 },
-    { "playerId": "seed-0003", "playerName": "QUARTERZ", "score": 154200, "maxCombo": 39, "playTimeSeconds": 165, "timestamp": 1746200000000 },
-    { "playerId": "seed-0004", "playerName": "TILTKING", "score": 121000, "maxCombo": 33, "playTimeSeconds": 150, "timestamp": 1746300000000 },
-    { "playerId": "seed-0005", "playerName": "BUMP3R", "score": 98750, "maxCombo": 28, "playTimeSeconds": 132, "timestamp": 1746400000000 },
-    { "playerId": "seed-0006", "playerName": "FLIPZ", "score": 74300, "maxCombo": 22, "playTimeSeconds": 110, "timestamp": 1746500000000 },
-    { "playerId": "seed-0007", "playerName": "RETRO_X", "score": 51200, "maxCombo": 18, "playTimeSeconds": 95, "timestamp": 1746600000000 },
-    { "playerId": "seed-0008", "playerName": "GLOWB0T", "score": 33600, "maxCombo": 14, "playTimeSeconds": 80, "timestamp": 1746700000000 }
-  ]
+  "entries": []
 }

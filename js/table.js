@@ -31,11 +31,11 @@ export function buildTable() {
   ];
 
   const bumpers = [
-    new Bumper(175, 250, 30, { impulse: 340, score: CONFIG.scoring.bumperBase, color: '#ff37c0' }),
-    new Bumper(325, 250, 30, { impulse: 340, score: CONFIG.scoring.bumperBase, color: '#ff37c0' }),
-    new Bumper(250, 168, 30, { impulse: 360, score: CONFIG.scoring.bumperBase + 50, color: '#ffb02e' }),
-    new Bumper(128, 392, 24, { impulse: 300, score: CONFIG.scoring.bumperBase, color: '#7a5cff' }),
-    new Bumper(372, 392, 24, { impulse: 300, score: CONFIG.scoring.bumperBase, color: '#7a5cff' })
+    new Bumper(175, 250, 30, { impulse: 300, score: CONFIG.scoring.bumperBase, color: '#ff37c0' }),
+    new Bumper(325, 250, 30, { impulse: 300, score: CONFIG.scoring.bumperBase, color: '#ff37c0' }),
+    new Bumper(250, 168, 30, { impulse: 320, score: CONFIG.scoring.bumperBase + 50, color: '#ffb02e' }),
+    new Bumper(128, 392, 24, { impulse: 270, score: CONFIG.scoring.bumperBase, color: '#7a5cff' }),
+    new Bumper(372, 392, 24, { impulse: 270, score: CONFIG.scoring.bumperBase, color: '#7a5cff' })
   ];
 
   const flippers = {

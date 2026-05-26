@@ -7,31 +7,31 @@ export const CONFIG = {
   height: 800,
 
   physics: {
-    gravity: 1500,        // px / s^2
+    gravity: 1900,        // px / s^2  (faster fall, less reaction time)
     fixedDt: 1 / 240,     // physics step (small for stable, tunnel-free collisions)
     maxStepsPerFrame: 8,  // accumulator cap to avoid spiral-of-death
-    maxSpeed: 1700,       // px / s velocity clamp
-    wallRestitution: 0.42,
+    maxSpeed: 2000,       // px / s velocity clamp
+    wallRestitution: 0.38,
     ballRadius: 9,
     ballMass: 1
   },
 
   flipper: {
-    length: 92,
+    length: 70,           // shorter -> real central drain gap, no auto-save
     radius: 9,
     // angles in radians, measured from +x axis with y pointing DOWN (clockwise positive)
     left:  { pivotX: 178, pivotY: 706, restAngle:  0.52, activeAngle: -0.46 },
     right: { pivotX: 322, pivotY: 706, restAngle:  Math.PI - 0.52, activeAngle: Math.PI + 0.46 },
     angularSpeed: 26,     // rad / s rotation speed toward target
     restitution: 0.5,
-    kick: 140             // extra outward impulse applied when the flipper is swinging
+    kick: 120             // extra outward impulse applied when the flipper is swinging
   },
 
   scoring: {
     bumperBase: 100,
     slingBase: 60,
-    comboWindowMs: 3200,        // time before an unbroken combo decays
-    comboPerLevel: 4,           // hits needed to raise the multiplier one step
+    comboWindowMs: 2600,        // shorter window -> combos are harder to keep alive
+    comboPerLevel: 5,           // hits needed to raise the multiplier one step
     maxMultiplier: 8,
     ballsPerGame: 3
   },
@@ -39,9 +39,9 @@ export const CONFIG = {
   launcher: {
     restX: 450,
     restY: 762,
-    minPower: 1430,             // enough to always clear the lane into play
-    maxPower: 1690,
-    chargeRate: 950             // power gained per second while holding
+    minPower: 1650,             // enough to always clear the lane under higher gravity
+    maxPower: 1980,
+    chargeRate: 1050            // power gained per second while holding
   },
 
   // Dual-track leaderboard configuration.
