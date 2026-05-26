@@ -4,7 +4,8 @@ import { CONFIG } from './config.js';
 import { Vec2, clamp, formatScore } from './utils.js';
 import { Ball } from './entities.js';
 import { buildTable } from './table.js';
-import { integrate, collideSegment, collideBumper, collideFlipper } from './physics.js';
+import { integrate, collideSegment, collideBumper, collideFlipper,
+  blackHoleAttract, inBlackHoleCore, ejectFromBlackHole } from './physics.js';
 
 const STATE = { IDLE: 'idle', LAUNCH: 'launch', PLAY: 'play', OVER: 'over' };
 
@@ -45,6 +46,8 @@ export class Game {
     this.power = CONFIG.launcher.minPower;
     this.charging = false;
     this.stuckTimer = 0;
+    this.captured = null;
+    this.captureCooldownUntil = 0;
     this.popups.length = 0;
   }
 
@@ -58,6 +61,7 @@ export class Game {
 
   _attachToLauncher() {
     this.state = STATE.LAUNCH;
+    this.captured = null;
     this.ball.pos = new Vec2(CONFIG.launcher.restX, CONFIG.launcher.restY);
     this.ball.vel = new Vec2(0, 0);
     this.ball.trail.length = 0;
@@ -116,27 +120,40 @@ export class Game {
     f.right.update(dt);
 
     if (this.state === STATE.PLAY) {
-      integrate(this.ball, dt, CONFIG.physics.gravity, CONFIG.physics.maxSpeed);
-
-      for (const seg of this.table.segments) {
-        const s = collideSegment(this.ball, seg);
-        if (s > 0) this._onSegment(seg, s);
-      }
-      for (const b of this.table.bumpers) {
-        const s = collideBumper(this.ball, b);
-        if (s > 0) this._onBumper(b);
-      }
-      if (collideFlipper(this.ball, f.left) > 0) this.audio.flipper();
-      if (collideFlipper(this.ball, f.right) > 0) this.audio.flipper();
-
-      this._clampBounds();
-
-      if (this.ball.pos.y > 770) {
-        this._loseBall();
-      } else if (this.ball.pos.x > 434 && this.ball.pos.y > 735 && this.ball.vel.len() < 45) {
-        this._attachToLauncher();           // rolled back into the launch lane
+      if (this.captured) {
+        this._updateCaptured();
       } else {
-        this._handleStuck(dt);
+        for (const h of this.table.blackHoles) blackHoleAttract(this.ball, h, dt);
+        integrate(this.ball, dt, CONFIG.physics.gravity, CONFIG.physics.maxSpeed);
+
+        for (const seg of this.table.segments) {
+          const s = collideSegment(this.ball, seg);
+          if (s > 0) this._onSegment(seg, s);
+        }
+        for (const b of this.table.bumpers) {
+          if (collideBumper(this.ball, b) > 0) this._onBumper(b);
+        }
+        if (collideFlipper(this.ball, f.left) > 0) this.audio.flipper();
+        if (collideFlipper(this.ball, f.right) > 0) this.audio.flipper();
+
+        this._clampBounds();
+
+        if (this.t > this.captureCooldownUntil) {
+          for (const h of this.table.blackHoles) {
+            if (inBlackHoleCore(this.ball, h)) { this._captureBall(h); break; }
+          }
+        }
+
+        if (!this.captured) {
+          const laneX = CONFIG.launcher.laneMinX;
+          if (this.ball.pos.y > this.H - CONFIG.physics.drainMargin) {
+            this._loseBall();
+          } else if (this.ball.pos.x > laneX && this.ball.pos.y > this.H - 100 && this.ball.vel.len() < 50) {
+            this._attachToLauncher();         // safety: dribbled back into the lane
+          } else {
+            this._handleStuck(dt);
+          }
+        }
       }
       this.elapsed += dt;
     }
@@ -145,6 +162,29 @@ export class Game {
     if (this.combo > 0 && (this.t - this.lastHitTime) > CONFIG.scoring.comboWindowMs / 1000) {
       this.combo = 0;
       this.multiplier = 1;
+    }
+  }
+
+  _captureBall(hole) {
+    this.captured = { hole, until: this.t + hole.holdTime };
+    this.ball.vel = new Vec2(0, 0);
+    this.ball.trail.length = 0;
+    hole.hitFlash();
+    this._registerCombo();
+    this._award(hole.score, hole.pos.x, hole.pos.y - hole.radius - 8);
+    this.audio.blackhole();
+    this.shake = Math.min(this.shake + 6, 12);
+  }
+
+  _updateCaptured() {
+    const hole = this.captured.hole;
+    this.ball.pos = hole.pos.clone();
+    this.ball.vel = new Vec2(0, 0);
+    if (this.t >= this.captured.until) {
+      ejectFromBlackHole(this.ball, hole);
+      this.captureCooldownUntil = this.t + 0.3;
+      this.captured = null;
+      this.audio.eject();
     }
   }
 
@@ -201,7 +241,7 @@ export class Game {
   }
 
   _handleStuck(dt) {
-    const inLane = this.ball.pos.x > 434;
+    const inLane = this.ball.pos.x > CONFIG.launcher.laneMinX;
     if (!inLane && this.ball.vel.len() < 35) {
       this.stuckTimer += dt;
       if (this.stuckTimer > 2.5) {
@@ -236,9 +276,10 @@ export class Game {
 
   _updateVisuals(dt) {
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 40);
-    if (this.state === STATE.PLAY || this.state === STATE.LAUNCH) this.ball.recordTrail();
+    if ((this.state === STATE.PLAY || this.state === STATE.LAUNCH) && !this.captured) this.ball.recordTrail();
     for (const b of this.table.bumpers) b.update(dt);
     for (const s of this.table.segments) s.update(dt);
+    for (const h of this.table.blackHoles) h.update(dt);
     for (const p of this.popups) { p.age += dt; p.y += p.vy * dt; }
     this.popups = this.popups.filter((p) => p.age < p.life);
   }
@@ -255,6 +296,7 @@ export class Game {
     }
 
     for (const seg of this.table.segments) seg.draw(ctx);
+    for (const h of this.table.blackHoles) h.draw(ctx);
     for (const b of this.table.bumpers) b.draw(ctx);
     this.table.flippers.left.draw(ctx);
     this.table.flippers.right.draw(ctx);
@@ -286,20 +328,23 @@ export class Game {
     const lx = CONFIG.launcher.restX, ly = CONFIG.launcher.restY;
     const frac = (this.power - CONFIG.launcher.minPower) /
       (CONFIG.launcher.maxPower - CONFIG.launcher.minPower);
+    const floorY = this.H - 25;
     ctx.save();
     // plunger shaft
     ctx.fillStyle = '#3aa6d6';
     ctx.shadowColor = '#2bd1ff';
     ctx.shadowBlur = 8;
-    const compress = this.charging ? frac * 14 : 0;
-    ctx.fillRect(lx - 9, ly + 14 + compress, 18, 786 - (ly + 14 + compress));
-    // power meter
+    const compress = this.charging ? frac * 16 : 0;
+    const top = ly + 16 + compress;
+    ctx.fillRect(lx - 10, top, 20, floorY - top);
+    // power meter (right margin, beside the lane)
     if (this.state === STATE.LAUNCH) {
+      const mx = this.W - 14, mTop = this.H - 320, mLen = 250;
       ctx.shadowBlur = 0;
       ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      ctx.fillRect(478, 560, 8, 200);
+      ctx.fillRect(mx, mTop, 8, mLen);
       ctx.fillStyle = frac > 0.75 ? '#ff5d5d' : '#39ff8b';
-      ctx.fillRect(478, 760 - 200 * frac, 8, 200 * frac);
+      ctx.fillRect(mx, mTop + mLen - mLen * frac, 8, mLen * frac);
     }
     ctx.restore();
   }

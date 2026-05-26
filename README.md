@@ -12,6 +12,13 @@
 | Phase 3 雲端排行 | 霓虹發光特效、Web Audio 音效、全網排行榜 UI、GitHub 雙軌 JSON 讀寫與自動分檔 | `js/leaderboard.js` `js/audio.js` `js/ui.js` `scripts/process_score.mjs` |
 | Phase 4 安全開源 | 時間戳記、防作弊雜湊（FNV-1a 簽章）、GitHub Pages 部署 | `js/utils.js` `.github/workflows/` |
 
+## 遊戲特色
+
+- **600×1000 大檯面**，配置 **12 個彈簧點（Bumper）** 與 **2 個黑洞**。
+- **黑洞**：球被吸入後短暫停留，再朝上半隨機方向**強力彈射**出來（`js/physics.js` 的 black-hole 系列函式）。
+- **出生點單向閘門**：球離開發射軌後無法再彈回發射軌（`table.js` 的 `oneWay` 線段）。
+- **高難度物理**：重力 2200、球速上限 2500、短彈片造成中央真實落球縫。
+
 ## 操作方式
 
 - **← / Z**：左彈片　**→ / M / `/`**：右彈片
@@ -49,11 +56,33 @@ python3 -m http.server 8080
   - `data/top_100_leaderboard.json`：最多 100 筆，前端直接 `fetch` 秒載渲染（**讀取永遠可用**）。
   - `data/all_history_current.json`：Append-only 全網紀錄，超過 5MB 由 `scripts/process_score.mjs` 自動分檔歸檔為 `all_history_partN.json`。
 
-### 關於雲端「寫入」
+### 啟用全球排行榜上傳（Serverless 代理）
 
-純前端網站無法安全保存寫入用的 Token，因此 **雲端分數上傳預設關閉**（`js/config.js` 的 `leaderboard.submit.enabled = false`），遊戲完全以本機模式正常運作。
+純前端網站無法安全保存寫入用的 Token，因此採 **Serverless 代理** 架構：前端把分數
+POST 給代理（保管 Token），代理再觸發 `repository_dispatch`，由
+`.github/workflows/submit-score.yml` 執行 `scripts/process_score.mjs` 驗證簽章、
+寫入 `all_history_current.json`（超過 5MB 自動分檔）並更新 `top_100_leaderboard.json`，
+最後自動 commit 回 `main`，Pages 隨即更新。
 
-若要啟用上傳：開啟 `submit.enabled` 並於執行期提供 Token，前端會透過 `repository_dispatch` 觸發 `.github/workflows/submit-score.yml`，由 Action 驗證簽章、寫回 JSON 並自動 commit。**請勿將任何 Token commit 進倉庫。** 此簽章僅為輕量防竄改，非伺服器級驗證。
+**部署步驟（以 Cloudflare Workers 為例，免費）：**
+
+1. 建立一個 **GitHub 細粒度 PAT**：僅授權此 repo 的 **Contents: Read and write**。
+2. 部署 `serverless/arcadepin-proxy.js`：
+   ```bash
+   cd serverless
+   npx wrangler deploy
+   npx wrangler secret put GH_TOKEN      # 貼上步驟 1 的 PAT
+   ```
+   （`wrangler.toml` 內的 `GH_OWNER`/`GH_REPO`/`ALLOWED_ORIGIN` 已預設好，可自行調整。）
+3. 取得 Worker 網址後，填入 `js/config.js`：
+   ```js
+   submit: { enabled: true, proxyUrl: 'https://arcadepin-proxy.<你>.workers.dev' }
+   ```
+4. 確認 repo **Settings → Actions → General → Workflow permissions = Read and write**
+   （Action 才能 commit 回 JSON）。
+
+完成後，遊戲結束即會自動上傳並同步更新全球前 100 名。Token 只存在代理端、不外洩；
+簽章為輕量防竄改，非伺服器級驗證。未設定代理時遊戲仍以本機紀錄正常運作。
 
 ## 資料格式
 

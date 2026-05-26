@@ -3,45 +3,60 @@
 
 export const CONFIG = {
   // Logical playfield resolution (the canvas scales to fit while preserving ratio).
-  width: 500,
-  height: 800,
+  width: 600,
+  height: 1000,
 
   physics: {
-    gravity: 1900,        // px / s^2  (faster fall, less reaction time)
-    fixedDt: 1 / 240,     // physics step (small for stable, tunnel-free collisions)
-    maxStepsPerFrame: 8,  // accumulator cap to avoid spiral-of-death
-    maxSpeed: 2000,       // px / s velocity clamp
-    wallRestitution: 0.38,
-    ballRadius: 9,
-    ballMass: 1
+    gravity: 2200,        // px / s^2  (fast fall, little reaction time)
+    fixedDt: 1 / 300,     // physics step (small for stable, tunnel-free collisions)
+    maxStepsPerFrame: 10, // accumulator cap to avoid spiral-of-death
+    maxSpeed: 2500,       // px / s velocity clamp
+    wallRestitution: 0.42,
+    ballRadius: 10,
+    ballMass: 1,
+    drainMargin: 40       // ball is lost below (height - drainMargin)
   },
 
   flipper: {
-    length: 70,           // shorter -> real central drain gap, no auto-save
-    radius: 9,
+    length: 80,
+    radius: 10,
     // angles in radians, measured from +x axis with y pointing DOWN (clockwise positive)
-    left:  { pivotX: 178, pivotY: 706, restAngle:  0.52, activeAngle: -0.46 },
-    right: { pivotX: 322, pivotY: 706, restAngle:  Math.PI - 0.52, activeAngle: Math.PI + 0.46 },
-    angularSpeed: 26,     // rad / s rotation speed toward target
+    left:  { pivotX: 215, pivotY: 882, restAngle:  0.52, activeAngle: -0.46 },
+    right: { pivotX: 385, pivotY: 882, restAngle:  Math.PI - 0.52, activeAngle: Math.PI + 0.46 },
+    angularSpeed: 28,
     restitution: 0.5,
-    kick: 120             // extra outward impulse applied when the flipper is swinging
+    kick: 130
   },
 
   scoring: {
     bumperBase: 100,
     slingBase: 60,
+    blackHoleScore: 250,
     comboWindowMs: 2600,        // shorter window -> combos are harder to keep alive
-    comboPerLevel: 5,           // hits needed to raise the multiplier one step
+    comboPerLevel: 5,
     maxMultiplier: 8,
     ballsPerGame: 3
   },
 
   launcher: {
-    restX: 450,
-    restY: 762,
-    minPower: 1650,             // enough to always clear the lane under higher gravity
-    maxPower: 1980,
-    chargeRate: 1050            // power gained per second while holding
+    restX: 565,
+    restY: 935,
+    minPower: 1980,             // always clears the (taller) lane under higher gravity
+    maxPower: 2380,
+    chargeRate: 1250,
+    laneMinX: 548               // x beyond this is the launch lane (used by safety checks)
+  },
+
+  // "Black hole" capture-and-eject feature.
+  blackHole: {
+    radius: 26,                 // capture core
+    influence: 80,              // ring within which the ball is pulled in
+    pull: 2000,                 // attraction strength (px/s^2 at the core edge)
+    holdTime: 0.55,             // seconds the ball is held before ejecting
+    ejectMin: 2050,
+    ejectMax: 2350,
+    ejectSpread: 0.7,           // rad, +/- around straight up
+    score: 250
   },
 
   // Dual-track leaderboard configuration.
@@ -49,19 +64,14 @@ export const CONFIG = {
     // Read path: a static JSON file served alongside the site (works on GitHub Pages).
     top100Url: 'data/top_100_leaderboard.json',
 
-    // Write path (optional). A pure-frontend site cannot hold a secret token safely,
-    // so cloud submission is OFF by default and the game runs perfectly local-only.
-    // To enable: set enabled=true and supply a token at runtime (never commit one).
+    // Write path via a Serverless proxy that holds the GitHub token (see serverless/).
+    // The proxy forwards to repository_dispatch; the Action validates + writes the JSON.
     submit: {
-      enabled: false,
-      owner: 'ozakboy',
-      repo: 'arcadepin',
-      eventType: 'arcadepin_score',
-      token: ''
+      enabled: false,           // set true after deploying the proxy below
+      proxyUrl: ''              // e.g. https://arcadepin-proxy.<you>.workers.dev
     }
   },
 
-  // Lightweight integrity stamp for submitted scores (deters trivial tampering;
-  // not a substitute for a real server-side check).
+  // Lightweight integrity stamp for submitted scores (verified by the Action).
   integritySalt: 'arcadepin-v6'
 };

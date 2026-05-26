@@ -11,7 +11,9 @@ export function integrate(ball, dt, gravity, maxSpeed) {
 }
 
 // Ball vs static thick segment. Returns impact speed if it collided, else 0.
+// One-way segments only block balls moving along their `oneWay` direction.
 export function collideSegment(ball, seg) {
+  if (seg.oneWay && ball.vel.dot(seg.oneWay) <= 0) return 0;
   const closest = closestPointOnSegment(ball.pos, seg.a, seg.b);
   const delta = ball.pos.sub(closest);
   let dist = delta.len();
@@ -77,4 +79,29 @@ export function collideFlipper(ball, flipper) {
   const swing = clamp(Math.abs(flipper.omega), 0, 30);
   ball.vel = ball.vel.add(n.scale(flipper.kick * (swing / 30)));
   return Math.abs(relVn) + flipper.kick * (swing / 30);
+}
+
+// Black-hole attraction: pull the ball toward the core when inside the influence ring.
+export function blackHoleAttract(ball, hole, dt) {
+  const d = hole.pos.sub(ball.pos);
+  const dist = d.len();
+  if (dist > hole.influence || dist < 1e-3) return;
+  const n = d.scale(1 / dist);
+  const strength = hole.pull * (1 - dist / hole.influence);
+  ball.vel = ball.vel.add(n.scale(strength * dt));
+}
+
+export function inBlackHoleCore(ball, hole) {
+  const dx = ball.pos.x - hole.pos.x, dy = ball.pos.y - hole.pos.y;
+  return dx * dx + dy * dy <= hole.radius * hole.radius;
+}
+
+// Eject the ball from the hole in a random upward cone at high speed.
+// `rand` is injectable so the headless simulation can be deterministic.
+export function ejectFromBlackHole(ball, hole, rand = Math.random) {
+  const ang = -Math.PI / 2 + (rand() * 2 - 1) * hole.ejectSpread;
+  const sp = hole.ejectMin + rand() * (hole.ejectMax - hole.ejectMin);
+  const dir = new Vec2(Math.cos(ang), Math.sin(ang));
+  ball.pos = hole.pos.add(dir.scale(hole.radius + ball.radius + 4));
+  ball.vel = dir.scale(sp);
 }

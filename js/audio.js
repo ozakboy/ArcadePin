@@ -55,4 +55,6 @@ export class AudioManager {
     setTimeout(() => this._blip(196, 0.4, 'square', 0.4), 340);
   }
   newBall() { this._blip(523, 0.1, 'triangle', 0.35, 260); }
+  blackhole() { this._blip(220, 0.28, 'sine', 0.4, -150); }
+  eject() { this._blip(180, 0.3, 'sawtooth', 0.45, 760); }
 }

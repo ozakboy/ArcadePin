@@ -32,11 +32,11 @@ export class CloudLeaderboard {
     return rank <= 100 ? rank : null;
   }
 
-  // Optional: dispatch a score to a GitHub Actions workflow for processing.
-  // Requires a token configured at runtime; otherwise it's a no-op.
+  // Submit a score through the Serverless proxy, which holds the GitHub token and
+  // triggers the score-processing Action. No-op when not configured (local-only).
   async submit(record) {
     const cfg = CONFIG.leaderboard.submit;
-    if (!cfg.enabled || !cfg.token) {
+    if (!cfg.enabled || !cfg.proxyUrl) {
       return { ok: false, skipped: true, reason: 'cloud submit disabled' };
     }
     const payload = {
@@ -44,19 +44,12 @@ export class CloudLeaderboard {
       sig: scoreSignature(record, CONFIG.integritySalt)
     };
     try {
-      const res = await fetch(
-        `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/dispatches`,
-        {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/vnd.github+json',
-            'Authorization': `Bearer ${cfg.token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ event_type: cfg.eventType, client_payload: payload })
-        }
-      );
-      if (res.status === 204) return { ok: true };
+      const res = await fetch(cfg.proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return { ok: true };
       return { ok: false, reason: `HTTP ${res.status}` };
     } catch (err) {
       return { ok: false, reason: err.message || 'network error' };

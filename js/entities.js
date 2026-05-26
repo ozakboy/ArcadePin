@@ -62,6 +62,7 @@ export class Segment {
     this.color = opts.color ?? '#2bd1ff';
     this.kind = opts.kind ?? 'wall';   // 'wall' | 'sling'
     this.score = opts.score ?? 0;
+    this.oneWay = opts.oneWay ?? null; // Vec2: only blocks balls moving this way
     this.flash = 0;
   }
   hitFlash() { this.flash = 1; }
@@ -156,6 +157,52 @@ export class Flipper {
     ctx.fillStyle = '#fff7d6';
     ctx.beginPath();
     ctx.arc(this.pivot.x, this.pivot.y, this.radius + 1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+export class BlackHole {
+  constructor(x, y, opts = {}) {
+    this.pos = new Vec2(x, y);
+    this.radius = opts.radius ?? 26;
+    this.influence = opts.influence ?? 80;
+    this.pull = opts.pull ?? 2000;
+    this.holdTime = opts.holdTime ?? 0.55;
+    this.ejectMin = opts.ejectMin ?? 2050;
+    this.ejectMax = opts.ejectMax ?? 2350;
+    this.ejectSpread = opts.ejectSpread ?? 0.7;
+    this.score = opts.score ?? 250;
+    this.color = opts.color ?? '#a35bff';
+    this.phase = Math.random() * Math.PI * 2;
+    this.flash = 0;
+  }
+  hitFlash() { this.flash = 1; }
+  update(dt) { this.phase += dt * 6; if (this.flash > 0) this.flash = Math.max(0, this.flash - dt * 2); }
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.pos.x, this.pos.y);
+    // swirling accretion arcs
+    ctx.strokeStyle = this.color;
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 24 + this.flash * 30;
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 3; i++) {
+      ctx.globalAlpha = 0.55 - i * 0.14;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 6 + i * 5, this.phase + i * 2, this.phase + i * 2 + Math.PI * 1.4);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // dark core
+    ctx.shadowBlur = 16;
+    const g = ctx.createRadialGradient(0, 0, 1, 0, 0, this.radius);
+    g.addColorStop(0, '#000008');
+    g.addColorStop(0.7, '#0b0524');
+    g.addColorStop(1, this.color);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }

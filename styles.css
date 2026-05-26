@@ -31,7 +31,7 @@ html, body {
 #game {
   height: 100%;
   width: auto;
-  aspect-ratio: 500 / 800;
+  aspect-ratio: 600 / 1000;
   display: block;
   background: #06070f;
   box-shadow: 0 0 40px rgba(43, 209, 255, 0.25), inset 0 0 60px rgba(0, 0, 0, 0.6);
@@ -39,7 +39,7 @@ html, body {
   border-radius: 10px;
 }
 /* When the viewport is narrower than the playfield ratio, fit to width instead. */
-@media (max-aspect-ratio: 500 / 800) {
+@media (max-aspect-ratio: 600 / 1000) {
   #game { width: 100%; height: auto; }
 }
 
