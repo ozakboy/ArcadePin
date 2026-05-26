@@ -1,0 +1,20 @@
+{
+  "name": "ArcadePin — 霓虹彈珠台",
+  "short_name": "ArcadePin",
+  "description": "復古街機風格的霓虹彈珠台遊戲",
+  "lang": "zh-TW",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06070f",
+  "theme_color": "#06070f",
+  "icons": [
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
