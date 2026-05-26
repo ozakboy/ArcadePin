@@ -58,6 +58,8 @@ python3 -m http.server 8080
 
 ### 啟用全球排行榜上傳（Serverless 代理）
 
+> **完整逐步操作手冊（含網頁儀表板/CLI 兩種做法、測試與排錯）：[`serverless/README.md`](serverless/README.md)**
+
 純前端網站無法安全保存寫入用的 Token，因此採 **Serverless 代理** 架構：前端把分數
 POST 給代理（保管 Token），代理再觸發 `repository_dispatch`，由
 `.github/workflows/submit-score.yml` 執行 `scripts/process_score.mjs` 驗證簽章、
