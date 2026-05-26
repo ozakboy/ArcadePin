@@ -30,14 +30,17 @@ html, body {
 
 #game {
   height: 100%;
-  max-height: 100vh;
-  max-width: 100vw;
+  width: auto;
   aspect-ratio: 500 / 800;
   display: block;
   background: #06070f;
   box-shadow: 0 0 40px rgba(43, 209, 255, 0.25), inset 0 0 60px rgba(0, 0, 0, 0.6);
   border: 2px solid rgba(43, 209, 255, 0.4);
   border-radius: 10px;
+}
+/* When the viewport is narrower than the playfield ratio, fit to width instead. */
+@media (max-aspect-ratio: 500 / 800) {
+  #game { width: 100%; height: auto; }
 }
 
 /* ---- overlay screens ---- */
